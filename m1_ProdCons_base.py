@@ -9,10 +9,11 @@ from multiprocessing import Process, Lock, Condition, Value, Array
 class Buffer:
     def __init__(self, nb_cases):
         self.nb_cases = nb_cases
-        self.storage_val = [-1] * nb_cases
-        self.storage_type = [-1] * nb_cases
-        self.ptr_prod = 0
-        self.ptr_cons = 0
+        self.storage_val = Array('i', [-1] * nb_cases)  # Utilisation d'un tableau partagé pour les valeurs
+        self.storage_type = Array('i', [-1] * nb_cases)  # Utilisation d'un tableau partagé pour les types
+        self.ptr_prod = Value('i', 0)  # Utilisation d'une valeur partagée pour le pointeur de production
+        self.ptr_cons = Value('i', 0)  # Utilisation d'une valeur partagée pour le pointeur de consommation
+        self.lock = Lock()  # Verrou pour synchroniser l'accès au buffer
 
     def produce(self, msg_val, msg_type, msg_source):
         position = self.ptr_prod
